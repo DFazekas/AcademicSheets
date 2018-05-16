@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<!--
+-------------------------------------------
+Student: Devon Fazekas <fazekade@sheridan.desire2learn.com>
+StudentID: 991466482
+-------------------------------------------
+-->
+
+<html>
+    <head>
+        <title>AcademicSheets</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+        <style>
+            .courseRow:hover {
+                cursor:pointer;
+            }
+        </style>
+    </head>
+
+    <body>
+        <input id="addSemester" class="btn btn-info" type="button" value="Add Semester"/>
+
+        <!-- Semester Table -->
+        <div class="container">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>TERM</th>
+                        <th>CREDITS</th>
+                        <th># COURSES</th>
+                        <th>AVERAGE</th>
+                        <th>COMPLETION</th>
+                    </tr>
+                </thead>
+                <tbody id="semesterDisplay">
+
+                </tbody>
+            </table>
+        </div>
+
+        <div id="courseSection" style="display:none;">
+            <input id="addCourse" class="btn btn-info" type="button" value="Add Course"/>
+
+            <!-- Course Table -->
+            <div class="container">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>COURSE</th>
+                            <th>CREDIT</th>
+                            <th>PROFESSOR</th>
+                            <th>AVERAGE</th>
+                            <th>COMPLETION</th>
+                            <th>ACHIEVED GRADE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="courseDisplay">
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <div id="taskSection" style="display:none;">
+            <input id="addTask" class="btn btn-info" type="button" value="Add Task"/>
+
+            <!-- Task Table -->
+            <div class="container">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>TASK</th>
+                            <th>WEIGHT</th>
+                            <th>MARK</th>
+                            <th>GRADE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="taskDisplay">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        
+        <!-- Semester Modal -->
+        <div id="semesterModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">SEMESTER</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form id="semesterForm" onsubmit="event.preventDefault();">
+                            <div class="form-group">
+                                <label for="semesterYearInput">YEAR<span class="h6 text-danger"> Required</span></label>
+                                <input type="number" class="form-control" id="semesterYearInput" min="2000" max="9999" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="semesterSeasonInput">SEASON<span class="h6 text-danger"> Required</span></label>
+                                <select class="form-control" id="semesterSeasonInput" required>
+                                    <option value="S">Summer</option>
+                                    <option value="F">Fall</option>
+                                    <option value="W">Winter</option>
+                                    <option value="U">Undefined</option>
+                                </select>
+                            </div>
+
+                            <input id="semesterBtn" class="btn btn-success" type="submit" value="CREATE" />
+                            <input id="semesterDelete" type="submit" class="btn btn-danger" value="DELETE" />
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Course Modal -->
+        <div id="courseModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">COURSE</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form id="courseForm" onsubmit="event.preventDefault();">
+                            <div class="form-group">
+                                <label for="courseTitleInput">TITLE<span class="h6 text-danger"> Required</span></label>
+                                <input type="text" class="form-control" id="courseTitleInput" placeholder="Ex. PROG 20261" pattern="[\s\S]*\S[\s\S]*" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="courseCreditInput">CREDIT<span class="h6 text-danger"> Required</span></label>
+                                <input type="number" class="form-control" id="courseCreditInput" min="0" placeholder="Ex. 3.0" step="0.5" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="courseProfInput">PROFESSOR</label>
+                                <input type="text" class="form-control" id="courseProfInput" placeholder="Ex. Mr. Anderson" />
+                            </div>
+
+                            <input id="courseBtn" class="btn btn-success" type="submit" value="CREATE" />
+                            <input id="courseDelete" type="submit" class="btn btn-danger" value="DELETE" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Modal -->
+        <div id="taskModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">TASK</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form id="taskForm" onsubmit="event.preventDefault();">
+                            <div class="form-group">
+                                <label for="taskTitleInput">TITLE<span class="h6 text-danger"> Required</span></label>
+                                <input type="text" class="form-control" id="taskTitleInput" placeholder="Ex. Assignment #1" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="taskWeightInput">WEIGHT (%)<span class="h6 text-danger"> Required</span></label>
+                                <input type="number" class="form-control" id="taskWeightInput" min="0" placeholder="Ex. 0.255" step="0.05" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="taskMarkInput">MARK (%)</label>
+                                <input type="number" class="form-control" id="taskMarkInput" min="0" placeholder="Ex. 0.953" step="0.05"  />
+                            </div>
+
+                            <input id="taskBtn" class="btn btn-success" type="submit" value="CREATE" />
+                            <input id="taskDelete" type="submit" class="btn btn-danger" value="DELETE" />
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Signature -->
+        <div class="container text-center bg-info">
+            Designed & Developed by <span style="font-weight:bold">Devon Fazekas</span>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                // Handles opening Modal (Create Semester).
+                $(document).on("click", "#addSemester", function () {
+                    // Get Modal from DOM.
+                    var $modal = $('#semesterModal');
+
+                    // Fill form with default values.
+                    $modal.find("#semesterYearInput").val((new Date).getFullYear());
+                    $modal.find("#semesterSeasonInput").val("U");
+
+                    // Change submit btn text to 'CREATE'.
+                    $modal.find("#semesterBtn").val("CREATE");
+
+                    // Hide Delete button.
+                    $modal.find("#semesterDelete").hide();
+
+                    // Show modal.
+                    $modal.modal('show');
+                });
+                // Handles opening Modal (Edit Semester).
+                $(document).on("click", ".editSemesterBtn", function () {
+                    // Get data from selected row.
+                    var $row = $(this).parent().parent();
+                    var year = $row.attr("data-year");
+                    var season = $row.attr("data-season");
+
+                    // Get Modal from DOM and fill form with selected Semester.
+                    var $modal = $('#semesterModal');
+                    $modal.find("#semesterYearInput").val("20" + year);
+                    $modal.find("#semesterSeasonInput").val(season);
+                    
+                    // Change submit btn text to 'SAVE CHANGES', and store original Term in data values.
+                    $modal.find("#semesterBtn").val("SAVE CHANGES").attr({"data-year": year, "data-season": season});
+
+                    // Show Delete btn.
+                    $modal.find("#semesterDelete").show();
+
+                    // Show Modal.
+                    $modal.modal('show');
+                });
+                // Overwrites default behaviour on number year-input (prevents '+, -, e' values).
+                document.querySelector("#semesterYearInput").addEventListener("keypress", function (evt) {
+                    if ((this.value.length > 3) || evt.which !== 8 && evt.which !== 0 && evt.which < 48 || evt.which > 57) {
+                        // 0 for null values; 8 for backspace; 48-57 for 0-9 numbers.
+                        evt.preventDefault();
+                    }
+                });
+                // Handles Semester saving.
+                $(document).on("click", "#semesterBtn", function () {
+                    // Get Modal from DOM.
+                    var $modal = $('#semesterModal');
+
+                    // Validate input.
+                    var yearInput = $("#semesterForm").find("#semesterYearInput").val();
+                    var seasonInput = $("#semesterForm").find("#semesterSeasonInput").val();
+                    if (parseInt(yearInput) >= 2000 && seasonInput.length > 0) {
+                        // Differentiates b/w creating a new Semester or editing an existing one.
+                        var isNew = $modal.find("#semesterBtn").val() === "CREATE";
+                        if (isNew) {
+                            // New - create new Semester.
+                            addSemester($modal, yearInput.slice(-2), seasonInput);
+                        } else {
+                            // Not new - edit existing Semester.
+                            editSemester($modal, yearInput.slice(-2), seasonInput);
+                        }
+                    }
+                });
+                // Handles Semester expanding.
+                $(document).on("click", ".semesterRow", function () {
+                    // Get Term from selected table row.
+                    var year = $(this).attr("data-year");
+                    var season = $(this).attr("data-season");
+
+                    // Show Course section.
+                    $("#courseSection").show();
+
+                    // Display all Courses belonging to Semester with matching Term.
+                    displayCourses(year, season);
+                });
+                // Handles Semester deleting.
+                $(document).on("click", "#semesterDelete", function () {
+                    if (confirm("ARE YOU SURE YOU WANT TO DELETE THIS?")) {
+                        // Get Modal from DOM.
+                        var $modal = $('#semesterModal');
+
+                        var store = db.transaction(SEMESTER_DB, "readwrite").objectStore(SEMESTER_DB);
+
+                        // Get Term of Semester being edited.
+                        var year = $modal.find("#semesterBtn").attr("data-year");
+                        var season = $modal.find("#semesterBtn").attr("data-season");
+
+                        // Object matching criteria for DB.
+                        var keyRange = IDBKeyRange.only([year, season]);
+                        var index = store.index("term");
+
+                        // Request object's ID, used for deleting from DB.
+                        var getIdRequest = index.getKey(keyRange).onsuccess = function (event) {
+                            var id = event.target.result;
+                            var removeRequest = store.delete(id).onsuccess = function () {
+                                // Does not guarantee object was deleted, only that request was successful.
+                                
+                                //TODO: delete all Courses and Tasks associated with this Semester.
+                            };
+                        };
+
+                        // Reprint table.
+                        displaySemesters();
+
+                        // Dismiss Modal.
+                        $modal.modal('hide');
+                    }
+                });
+
+                // Handles opening Modal (Create Course).
+                $(document).on("click", "#addCourse", function () {
+                    // Get Modal from DOM.
+                    var $modal = $('#courseModal');
+                    
+                    // Clear form fields.
+                    $modal.find("#courseTitleInput").val("");
+                    $modal.find("#courseCreditInput").val("");
+                    $modal.find("#courseProfInput").val("");
+
+                    // Change submit btn text to 'CREATE'.
+                    $modal.find("#courseBtn").val("CREATE");
+                    
+                    // Hide Delete button.
+                    $modal.find("#courseDelete").hide();
+                    
+                    // Show modal.
+                    $modal.modal('show');
+                });
+                // Handles opening Modal (Edit Course).
+                $(document).on("click", ".editCourseBtn", function () {
+                    // Get data from selected row.
+                    var $row = $(this).parent().parent().children();
+                    var course = $row.eq(0).html();
+                    var credit = $row.eq(1).html();
+                    var profName = $row.eq(2).html();
+                    var year = $row.parent().attr("data-year");
+                    var season = $row.parent().attr("data-season");
+                    
+                    // Get Modal from DOM and fill form with selected Course.
+                    var $modal = $('#courseModal');
+                    $modal.find("#courseTitleInput").val(course);
+                    $modal.find("#courseCreditInput").val(credit);
+                    $modal.find("#courseProfInput").val(profName);
+                    
+                    // Change submit btn text to 'SAVE CHANGES', and store original term in data values.
+                    $modal.find("#courseBtn").val("SAVE CHANGES").attr({"data-year": year, "data-season": season, "data-course": course});
+                    
+                    // Show Delete btn.
+                    $modal.find("#courseDelete").show();
+                    
+                    // Show Modal.
+                    $modal.modal('show');
+                });
+                // Overwrites default behaviour on number credit-input (prevents '+, -, e' values).
+                document.querySelector("#courseCreditInput").addEventListener("keypress", function (evt) {
+                    console.dir(evt.which);
+                    if ((this.value.length > 3) || (evt.which !== 8) && (evt.which !== 0) && (evt.which != 46) && (evt.which < 48 || evt.which > 57) ) {
+                        // 0 for null values; 8 for backspace; 48-57 for 0-9 numbers.
+                        evt.preventDefault();
+                    }
+                });
+                // Handles Course Saving.
+                $(document).on("click", "#courseBtn", function () {
+                    // Get Modal from DOM.
+                    var $modal = $('#courseModal');
+                    
+                    // Validate input.
+                    var title = $modal.find("#courseTitleInput").value.trim();
+                    var credit = $modal.find("#courseCreditInput").value.trim();
+                    var profName = $modal.find("#courseProfInput").value.trim();
+                    
+                    if (title.length > 0 && parseFloat(credit) > 0) {
+                        // Differentiate b/w creating new Course or editing an existing one.
+                        var isNew = $modal.find("#courseBtn").val() === "CREATE";
+                        if (isNew) {
+                            // New - create new Course.
+                            addCourse($modal, title, credit, profName);
+                        } 
+                        else {
+                            // Not new - edit existing Course.
+                            editCourse($modal, title, credit, profName);
+                        }
+                        
+                        // Dismiss Modal.
+                        $modal.modal('hide');
+                    }
+                    
+                    
+                    
+                    
+                    
+
+                    // Validate non-empty required input.
+                    /*if ((title.length > 0) && (credit.length > 0)) {
+                        // Neglect empty ProfName.
+                        if (profName.length > 0) {
+                            if (isNew === true) {
+                                // Create new Course.
+                                //addCourse(title, parseFloat(credit), profName);
+                                console.log("CREATE COURSE (w Prof)");
+                            } else {
+                                //sem.editCourse(title, parseFloat(credit), profName);
+                                console.log("EDIT COURSE (w Prof)");
+                            }
+                        } else {
+                            if (isNew === true) {
+                                // Create new Course.                
+                                //addCourse(title, parseFloat(credit));
+                                console.log("CREATE COURSE (w/o Prof)");
+                            } else {
+                                //sem.editCourse(title, parseFloat(credit));
+                                console.log("EDIT COURSE (w/o Prof)");
+                            }
+                        }
+
+                        // Dismiss Modal.
+                        $modal.modal('hide');
+                    }*/
+                });
+
+                // Handles viewing Course's Tasks.
+                $(document).on("click", ".courseRow", function () {
+                    // Get Term and Course from selected table row.
+                    var course = $(this).children().eq(0).html();
+                    var year = $(this).attr("data-year");
+                    var season = $(this).attr("data-season");
+
+                    // Display all Tasks belonging to Course with matching Term.
+                    displayTasks(year, season, course);
+                });
+                // Handles opening Modal (Create Task).
+                $(document).on("click", "#addTask", function () {
+                    // Clear selected Course.
+                    selectedTask = null;
+
+                    // Clear modal data.
+                    var $modal = $('#taskModal');
+                    $modal.find("#taskTitleInput").val("");
+                    $modal.find("#taskWeightInput").val("");
+                    $modal.find("#taskMarkInput").val("");
+
+                    // Change submit btn text to 'CREATE'.
+                    $modal.find("#taskBtn").val("CREATE");
+                    // Hide Delete button.
+                    $modal.find("#taskDelete").hide();
+                    // Show modal.
+                    $modal.modal('show');
+                });
+                // Handles opening Modal (Edit Task).
+                $(document).on("click", ".editTaskBtn", function () {
+                    var $row = $(this).parent().parent().children();
+                    var title = $row.eq(0).html();
+                    var weight = $row.eq(1).html();
+                    var mark = $row.eq(2).html();
+
+                    // Update selected Task.
+                    selectedTask = selectedCourse.findTask(title);
+                    console.dir(selectedTask);
+
+                    var $modal = $('#taskModal');
+                    // Show Delete button.
+                    $modal.find("#taskDelete").show();
+                    // Fill form with data from selected-Task.
+                    $modal.find("#taskTitleInput").val(selectedTask.title);
+                    $modal.find("#taskWeightInput").val(selectedTask.weight);
+                    $modal.find("#taskMarkInput").val(selectedTask.mark);
+                    // Change submit btn text to 'SAVE CHANGES'.
+                    $modal.find("#taskBtn").val("SAVE CHANGES");
+                    // Show modal.
+                    $modal.modal('show');
+                });
+                // Handles Task Saving.
+                $(document).on("click", "#taskBtn", function () {
+                    var $modal = $('#taskModal');
+                    var isNew = $modal.find("#taskBtn").val() === "CREATE";
+                    var $inputs = $("#taskForm").find("input");
+                    var title = $inputs[0].value;
+                    var weight = $inputs[1].value;
+                    var mark = $inputs[2].value;
+
+                    // Validate non-empty required input.
+                    if ((title.length > 0) && (weight.length > 0)) {
+                        // Convert strings to float.
+                        console.log("Weight = " + weight);
+                        // Neglect empty Mark.
+                        if (mark.length > 0) {
+                            if (isNew === true) {
+                                // Create new Task.
+                                selectedCourse.addTask(title, weight, mark);
+                                console.log("CREATE TASK (w Mark)");
+                            } else {
+                                selectedCourse.editTask(title, weight, mark);
+                                console.log("EDIT TASK (w Mark)");
+                            }
+                        } else {
+                            if (isNew === true) {
+                                // Create new Task.                
+                                selectedCourse.addTask(title, weight);
+                                console.log("CREATE TASK (w/o Mark)");
+                            } else {
+                                selectedCourse.editTask(title, weight);
+                                console.log("EDIT TASK (w/o Mark)");
+                            }
+                        }
+
+                        // Dismiss Modal.
+                        $modal.modal('hide');
+                    }
+                });
+                // Handles deleting Course.
+                $(document).on("click", "#courseDelete", function () {
+                    if (confirm("ARE YOU SURE YOU WANT TO DELETE THIS COURSE?") === true) {
+                        sem.deleteCourse();
+
+
+
+                        // Dismiss Modal.
+                        $("#courseModal").modal('hide');
+                    }
+                });
+
+
+            });
+
+            /* SEMESTER CONSTRUCTOR */
+            function Semester(term) {
+                // Methods
+                this.findCourse = function (title) {
+                    /**
+                     * Search the list of Courses and return one with a matching title, or null if not found.
+                     */
+                    var myArray = this.courses;
+                    for (var i = 0; i < myArray.length; i++) {
+                        if (myArray[i].title === title) {
+                            var course = myArray[i];
+                            //myArray.splice(i, 1);     // Delete Course from list.
+                            return course;
+                        }
+                    }
+                    return null;
+                };
+                this.addCourse = function (title, credit, profName) {
+                    /**
+                     * Create new Course and append it to the list of Courses.
+                     */
+                    var newCourse = new Course(title, credit, profName);
+                    // Append new Course to list of Courses.
+                    this.courses.push(newCourse);
+
+                    // Update table.
+                    //$table = $("#courseDisplay");
+                    //$table.append(newCourse.displayCourse());
+                    displayCourses();
+                };
+                this.editCourse = function (title, credit, profName = null) {
+                    /**
+                     * Overwrite Course attributes.
+                     */
+                    selectedCourse.title = title;
+                    selectedCourse.credit = credit;
+                    selectedCourse.profName = (profName === null) ? "----" : profName;
+                    displayCourses();
+
+                };
+                this.deleteCourse = function () {
+                    /**
+                     * Removes selected-Course from Course list.
+                     * If Course list is empty thereafter set selected-Course to null.
+                     * Else, set to first Course in Course list.
+                     */
+                    var myArray = this.courses;
+                    for (var i = 0; i < myArray.length; i++) {
+                        if (myArray[i].title === selectedCourse.title) {
+                            myArray.splice(i, 1);
+                        }
+                    }
+                    selectedCourse = (myArray.length > 0) ? (myArray[0]) : null;
+                    displayCourses();
+                    displayTasks();
+                };
+                this.computeCredits = function () {
+                    /**
+                     * Sets Semester Credits as the sum of its Course Credits.
+                     */
+                    var credits = 0.0;
+                    this.courses.forEach(function (course) {
+                        // If Credit is empty, skip.
+                        if (typeof course.credit === 'string')
+                            return;
+                        // Otherwise, sum Credits.
+                        credits += course.credit;
+                    });
+                    this.credits = credits;
+                };
+                this.computeAverage = function () {
+                    /**
+                     * Sets Semester Average as the average of its Course Averages.
+                     */
+                    var avg = 0.0, num = 0;
+                    this.courses.forEach(function (course) {
+                        // If Average is empty, skip.
+                        if (typeof course.average === 'string')
+                            return;
+                        // Otherwise, sum Average.
+                        avg += course.average;
+                        num++;
+                    });
+                    this.average = (num > 0) ? (avg / num) : "----";
+                };
+                this.computeCompletion = function () {
+                    /**
+                     * Sets Semester Completion as the sum of its Course Completions.
+                     */
+                    var completion = 0.0;
+                    this.courses.forEach(function (course) {
+                        // If Completion is empty, skip.
+                        if (typeof course.completion === 'string')
+                            return;
+                        // Otherwise, sum Completion.
+                        completion += course.completion;
+                    });
+                    this.completion = (completion > 0) ? parseFloat(Number(1 - completion).toFixed(4)) : "----";
+                };
+                this.refresh = function () {
+                    /**
+                     * Recomputes all values in the Semester.
+                     */
+                    this.courses.forEach(function (course) {
+                        course.refreshCourse();
+                    });
+
+                    // These values depend on child Courses.
+                    this.computeCredits();
+                    this.computeAverage();
+                    this.computeCompletion();
+                };
+
+                // Field variables
+                this.courses = [];
+                this.term = term;
+                this.credits = "----";
+                this.average = "----";
+                this.completion = "----";
+            }
+            /* COURSE CONSTRUCTOR */
+            function Course(title, credit, profName) {
+                // Methods
+                this.addTask = function (title, weight, mark = null) {
+                    mark = (mark === null) ? "----" : parseFloat(mark);
+                    var newTask = new Task(title, parseFloat(weight), mark);
+                    selectedTask = newTask;
+                    this.tasks.push(newTask);
+                    selectedTask.refreshTask();
+                    this.refreshCourse();
+                    displayCourses();
+                    displayTasks();
+                };
+                this.editTask = function (title, weight, mark = null) {
+                    console.log("Title: " + title + "\nWeight: " + weight + "\nMark: " + mark);
+                    selectedTask.title = title;
+                    selectedTask.weight = parseFloat(weight);
+                    selectedTask.mark = (mark === null) ? "----" : parseFloat(mark);
+                    console.dir(selectedTask);
+                    selectedTask.refreshTask();
+                    selectedTask.refreshTask();
+                    this.refreshCourse();
+                    displayCourses();
+                    displayTasks();
+                };
+                this.computeAverage = function () {
+                    var avg = 0.0, num = 0;
+                    this.tasks.forEach(function (task) {
+                        // If Mark is empty, skip.
+                        if (typeof task.mark === 'string')
+                            return;
+                        // Otherwise, sum mark.
+                        avg += task.mark;
+                        num++;
+                    });
+                    avg /= num;
+                    this.average = (num > 0) ? parseFloat(Number(avg).toFixed(4)) : "----";
+                };
+                this.computeCompletion = function () {
+                    var complete = 0.0;
+                    this.tasks.forEach(function (task) {
+                        // If Mark is empty, skip.
+                        if (typeof task.mark === 'string')
+                            return;
+                        // Otherwise, sum Weight.
+                        complete += task.weight;
+                    });
+                    this.completion = (complete > 0) ? parseFloat(Number(1 - complete).toFixed(4)) : "----";
+                };
+                this.computeAchievedGrade = function () {
+                    var grade = 0.0;
+                    this.tasks.forEach(function (task) {
+                        // If Mark is empty, skip.
+                        console.dir(task);
+                        if (typeof task.mark === 'string')
+                            return;
+                        // Otherwise, sum Grade.
+                        grade += task.grade;
+                    });
+                    this.achievedGrade = (typeof this.completion === 'string') ? "----" : parseFloat(Number(grade).toFixed(4));
+                };
+                this.refreshCourse = function () {
+                    // Recomputes all Course values.
+                    this.computeAverage();
+                    this.computeCompletion();
+                    this.computeAchievedGrade();
+                };
+                this.printTasks = function () {
+                    var str = "";
+                    this.tasks.forEach(function (task) {
+                        str += "\n\tTask Title: " + task.title
+                                + "\n\t\tWeight: " + task.weight
+                                + "\n\t\tMark: " + task.mark
+                                + "\n\t\tGrade: " + task.grade;
+                    });
+                    return str;
+                };
+                this.displayCourse = function () {
+                    // Returns table-ready summary of Course.
+                    return "<tr class='courseRow'><td>" + this.title + "</td>"
+                            + "<td>" + Number(this.credit).toFixed(2) + "</td>"
+                            + "<td>" + this.profName + "</td>"
+                            + "<td>" + convertValue(this.average) + "</td>"
+                            + "<td>" + convertValue(this.completion) + "</td>"
+                            + "<td>" + convertValue(this.achievedGrade) + "</td>"
+                            + "<td><input class='btn btn-default btn-sm editCourseBtn' value='EDIT'/></td></tr>";
+                };
+                this.findTask = function (title) {
+                    var myArray = this.tasks;
+                    for (var i = 0; i < myArray.length; i++) {
+                        if (myArray[i].title === title) {
+                            var task = myArray[i];
+                            //myArray.splice(i, 1);     // Delete Course from list.
+                            return task;
+                        }
+                    }
+                    return null;
+                };
+                Course.prototype.toString = function () {
+                    return "Title: " + this.title
+                            + "\nCredit: " + this.credit
+                            + "\nProfName: " + this.profName
+                            + "\nAverage: " + this.average
+                            + "\nCompletion: " + this.completion
+                            + "\nAchievedGrade: " + this.achievedGrade
+                            + "" + this.printTasks();
+                };
+
+                // Field variables
+                this.title = title;
+                this.credit = credit;
+                this.profName = profName;
+                this.tasks = [];
+                this.average = "----";
+                this.completion = "----";
+                this.achievedGrade = "----";
+            }
+            /* TASK CONSTRUCTOR */
+            function Task(title, weight, mark) {
+                // Methods
+                Task.prototype.toString = function () {
+                    return "Title: " + this.title + " \nWeight: " + Number(this.weight * 100).toFixed(2) + "% \nMark: " + Number(this.mark * 100).toFixed(2) + " \nGrade: " + Number(this.grade * 100).toFixed(3) + "%";
+                };
+                this.computeGrade = function () {
+                    // If Mark is empty, return empty.
+                    if (typeof this.mark === 'string')
+                        return "----";
+                    // Otherwise, compute Grade.
+                    this.grade = parseFloat(Number(this.weight * this.mark).toFixed(4));
+                };
+                this.refreshTask = function () {
+                    // Recompute all Task values.
+                    this.computeGrade();
+                };
+                this.displayTask = function () {
+                    // Returns table-ready summary of Task.
+                    return "<tr class='taskRow'><td>" + this.title + "</td>"
+                            + "<td>" + convertValue(this.weight) + "</td>"
+                            + "<td>" + convertValue(this.mark) + "</td>"
+                            + "<td>" + convertValue(this.grade) + "</td>"
+                            + "<td><input class='btn btn-default btn-sm editTaskBtn' value='EDIT'/></td></tr>";
+                };
+                // Field variables
+                this.title = title;
+                this.weight = weight;
+                this.mark = mark;
+                this.grade = "----";
+            }
+
+
+            function displayCourses() {
+                var $table = $("#courseDisplay");
+                var data = "";
+
+                // Clear table.
+                $table.html(" ");
+
+                // Rewrite table.
+                sem.courses.forEach(function (course) {
+                    data += course.displayCourse();
+                });
+                $table.append(data);
+            }
+            function displayTasks() {
+                var $table = $("#taskDisplay");
+                var data = "";
+
+                // Clear table.
+                $table.html(" ");
+
+                // Rewrite header.	
+                console.dir(!selectedCourse);
+                var title = (!selectedCourse) ? " " : selectedCourse.title;
+                $("#taskParent").html(title);
+
+                // If no Course exists, hide Task table.
+                if (selectedCourse) {
+                    // Rewrite table.
+                    selectedCourse.tasks.forEach(function (task) {
+                        if (task !== null) {
+                            data += task.displayTask();
+                        }
+                    });
+                    $table.append(data);
+                } else {
+                    $("#addTask").prop('disabled', true);
+                }
+            }
+            function convertValue(value) {
+                // Returns formatted percentage string or empty.
+                return (typeof value === 'string') ? "----" : Number(value * 100).toFixed(2) + "%";
+            }
+            function testingData() {
+                // Create new Semester.
+                sem = new Semester("18S");
+
+                // Create new Courses.
+                sem.addCourse("PROG 23672", 6.00, "Shane Saunders");
+                sem.addCourse("SCIE 15602", 3.00, "Ed Sykes");
+                sem.addCourse("MATH 17028", 3.00, "----");
+
+                // Select first Course.
+                selectedCourse = sem.courses[0];
+
+                // Create new Tasks for selected Course.
+                selectedCourse.addTask("Assignment #1", 0.075, 1.00);
+                selectedCourse.addTask("Assignment #2", 0.075, 0.97);
+                selectedCourse.addTask("Assignment #3", 0.075);
+                selectedCourse.addTask("Assignment #4", 0.075);
+                selectedCourse.addTask("Quiz #1", 0.02, 0.65);
+                selectedCourse.addTask("Quiz #2", 0.02, 0.85);
+                selectedCourse.addTask("Quiz #3", 0.02, 0.90);
+                selectedCourse.addTask("Quiz #4", 0.02);
+                selectedCourse.addTask("Quiz #5", 0.02);
+                selectedCourse.addTask("Midterm", 0.2502, 0.78);
+                selectedCourse.addTask("Exam", 0.3498);
+            }
+
+
+            // Displaying functions.
+            function displaySemesters() {
+                /**
+                 * Retrieves all Semester objects from IndexedDB,
+                 * and displays them in the SemesterTable.
+                 */
+                var store = db.transaction(SEMESTER_DB).objectStore(SEMESTER_DB);
+
+                // Get table from DOM.
+                var $table = $("#semesterDisplay");
+
+                // Clear table.
+                $table.html(" ");
+
+                // Prepare data to append to table.
+                var data = "";
+
+                // Get Cursor from DB containing all relevant objects.
+                store.openCursor().onsuccess = function (event) {
+                    var cursor = event.target.result;
+                    if (cursor) {
+                        // Retrieve object from Cursor.
+                        var obj = cursor.value;
+
+                        // Concatenate new row into preparing data.
+                        data += "<tr class='semesterRow' data-year='" + obj.term.year + "' data-season='" + obj.term.season + "'><td>" + obj.term.year + "" + obj.term.season + "</td>"
+                                + "<td>" + (obj.credits === null ? '---' : Number(obj.credits).toFixed(2)) + "</td>"
+                                + "<td>" + "FIX" + "</td>"
+                                + "<td>" + (obj.average === null ? '---' : convertValue(obj.average)) + "</td>"
+                                + "<td>" + (obj.completion === null ? '---' : convertValue(obj.completion)) + "</td>"
+                                + "<td><input class='btn btn-default btn-sm editSemesterBtn' value='EDIT'/></td></tr>";
+
+                        // Move to next Semester.
+                        cursor.continue();
+                    } else {
+                        // No more entries - append data to table.
+                        $table.append(data);
+                    }
+                };
+            }
+            function displayCourses(year, season) {
+                /**
+                 * Retrieves all Course objects from IndexedDB with matching Term,
+                 * and displays them in the CourseTable.
+                 */
+                var store = db.transaction(COURSE_DB).objectStore(COURSE_DB);
+
+                // Get table from DOM.
+                var $table = $("#courseDisplay");
+
+                // Clear table.
+                $table.html(" ");
+                var data = "";
+
+                // Matching criteria (only Course objects with this Term).
+                var singleKeyRange = IDBKeyRange.only([year, season]);
+
+                // Get Cursor from DB containing all relevant objects.
+                var index = store.index("term");
+                index.openCursor(singleKeyRange).onsuccess = function (event) {
+                    var cursor = event.target.result;
+                    if (cursor) {
+                        // Retrieve object from Cursor.
+                        var obj = cursor.value;
+
+                        // Concatenate new row into preparing data.
+                        data += "<tr class='courseRow' data-year='" + obj.term.year + "' data-season='" + obj.term.season + "'><td>" + obj.course + "</td>"
+                                + "<td>" + (obj.credits === null ? '---' : Number(obj.credit).toFixed(2)) + "</td>"
+                                + "<td>" + (obj.profName === null ? '---' : obj.profName) + "</td>"
+                                + "<td>" + (obj.average === null ? '---' : convertValue(obj.average)) + "</td>"
+                                + "<td>" + (obj.completion === null ? '---' : convertValue(obj.completion)) + "</td>"
+                                + "<td>" + (obj.achievedGrade === null ? '---' : convertValue(obj.achievedGrade)) + "</td>"
+                                + "<td><input class='btn btn-default btn-sm editCourseBtn' value='EDIT'/></td></tr>";
+
+                        // Move to next Course.
+                        cursor.continue();
+                    } else {
+                        // No more entries - append data to table.
+                        $table.append(data);
+                    }
+                };
+            }
+            function displayTasks(year, season, course) {
+                /**
+                 * Retrieves all Course objects from IndexedDB with matching Term,
+                 * and displays them in the CourseTable.
+                 */
+                var store = db.transaction(TASK_DB).objectStore(TASK_DB);
+
+                // Get table from DOM.
+                var $table = $("#taskDisplay");
+
+                // Clear table.
+                $table.html(" ");
+                var data = "";
+
+                // Matching criteria (only Task objects with this Term & Course).
+                var singleKeyRange = IDBKeyRange.only([year, season, course]);
+
+                // Get Cursor from DB containing all relevant objects.
+                var index = store.index("index");
+                index.openCursor(singleKeyRange).onsuccess = function (event) {
+                    var cursor = event.target.result;
+                    if (cursor) {
+                        // Retrieve object from Cursor.
+                        var obj = cursor.value;
+
+                        // Concatenate new row into preparing data.
+                        data += "<tr class='taskRow' data-year='" + obj.term.year + "' data-season='" + obj.term.season + "' data-course='" + obj.course + "'><td>" + obj.title + "</td>"
+                                + "<td>" + (obj.weight === null ? '---' : convertValue(obj.weight)) + "</td>"
+                                + "<td>" + (obj.mark === null ? '---' : convertValue(obj.mark)) + "</td>"
+                                + "<td>" + (obj.grade === null ? '---' : convertValue(obj.grade)) + "</td>"
+                                + "<td><input class='btn btn-default btn-sm editTaskBtn' value='EDIT'/></td></tr>";
+
+                        // Move to next Course.
+                        cursor.continue();
+                    } else {
+                        // No more entries - append data to table.
+                        $table.append(data);
+                    }
+                };
+            }
+
+            // Creation functions.
+            function addSemester($modal, year, season) {
+                // Retrieve Semester DB.
+                var store = db.transaction(SEMESTER_DB, "readwrite").objectStore(SEMESTER_DB);
+
+                // Search for duplicate obj in DB to prevent overwriting data.
+                var index = store.index("term");
+                var key = IDBKeyRange.only([year, season]);
+
+                var duplicateRequest = index.openCursor(key).onsuccess = function (event) {
+                    var cursor = event.target.result;
+                    if (cursor) {
+                        // Duplicate found.                        
+                        alert("Semester (" + year + "" + season + ") already exists!");
+                    } else {
+                        // Unique.
+
+                        // Temporary Semester object.
+                        var semester = {
+                            term: {
+                                year: year,
+                                season: season
+                            },
+                            credits: null,
+                            average: null,
+                            completion: null
+                        };
+                        store.add(semester).onsuccess = function () {
+                            // Semester created.
+                            displaySemesters();
+
+                            // Dismiss Modal.
+                            $modal.modal('hide');
+                        };
+                    }
+                };
+            }
+            function addCourse($modal, title, credit, profName) {
+                // Retrieve Course DB.
+                var store = db.transaction(COURSE_DB, "readwrite").objectStore(COURSE_DB);
+                
+                // Search for duplicate Course in DB to prevent overwriting data.
+                var index;
+                //TODO: finish
+            }
+            // Editing functions.
+            function editSemester($modal, year, season) {
+                // Retrieve Semester DB.
+                var store = db.transaction(SEMESTER_DB, "readwrite").objectStore(SEMESTER_DB);
+
+                // Matching criteria for finding duplicated Semesters.
+                var key = IDBKeyRange.only([year, season]);
+                var index = store.index("term");
+
+                var duplicateRequest = index.openCursor(key).onsuccess = function (event) {
+                    var cursor = event.target.result;
+                    if (cursor) {
+                        // Duplicate found - prevent editing.
+                        alert("Semester (" + year + "" + season + ") already exists!");
+                    } else {
+                        // Unique - retrieve original Semester in DB to edit.
+                        var oldYear = $modal.find("#semesterBtn").attr("data-year");
+                        var oldSeason = $modal.find("#semesterBtn").attr("data-season");
+                        key = IDBKeyRange.only([oldYear, oldSeason]);
+                        var findSemesterRequest = index.openCursor(key).onsuccess = function (event) {
+                            var cursor = event.target.result;
+                            if (cursor) {
+                                // Original Semester found.
+                                var semester = cursor.value;
+                                semester.term.year = ($("#semesterForm").find("#semesterYearInput").val()).slice(-2);
+                                semester.term.season = $("#semesterForm").find("#semesterSeasonInput").val();
+
+                                var updateRequest = cursor.update(semester);
+                                updateRequest.onerror = function (event) {
+                                    console.log("Error: " + event.target.errorCode);
+                                };
+
+                                // Reprint Semesters.
+                                displaySemesters();
+
+                                // Dismiss Modal.
+                                $modal.modal('hide');
+                            } else {
+                                // No Semester found.
+                                console.log("Original Semester NOT FOUND. Error?");
+                            }
+                        };
+                    }
+
+
+
+
+                    /*var openCursorRequest = index.openCursor(key).onsuccess = function (event) {
+                     //TODO: prevent overwriting other semesters by differentiating b/w the original
+                     // term of this Semester and matching Terms of other Semesters.
+                     
+                     var cursor = event.target.result;
+                     if (cursor) {
+                     var semester = cursor.value;
+                     
+                     semester.term.year = ($("#semesterForm").find("#semesterYearInput").val()).slice(-2);
+                     semester.term.season = $("#semesterForm").find("#semesterSeasonInput").val();
+                     
+                     var updateRequest = cursor.update(semester);
+                     updateRequest.onerror = function (event) {
+                     console.log("Error: " + event.target.errorCode);
+                     };
+                     
+                     // Reprint Semesters.
+                     displaySemesters();
+                     }
+                     };*/
+                };
+            }
+
+            // This works on all devices/browsers, and uses IndexedDBShim as a final fallback.
+            var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+
+            // Check support for IndexedDB.
+            if (!window.indexedDB) {
+                window.alert("Your browser doesn't support a stable version of IndexedDB which is a key component to the functionality of this app.");
+            }
+
+            // Global variables.
+            const DB_NAME = "AcademicSheets";
+            const SEMESTER_DB = "SemesterTable";
+            const COURSE_DB = "CourseTable";
+            const TASK_DB = "TaskTable";
+            var db;
+
+            // Open (or create) the database, then retrieve data.
+            var open = indexedDB.open(DB_NAME, 1);
+            open.onerror = function (event) {
+                console.log("Error: " + event.target.errorCode);
+            };
+            open.onupgradeneeded = function (event) {
+                // Create the schema.
+                db = event.target.result;
+                console.log("OnUpgradeNeeded: ");
+                console.dir(db);
+
+                var semesterStore = db.createObjectStore(SEMESTER_DB, {autoIncrement: true});
+                semesterStore.createIndex("term", ["term.year", "term.season"], {unique: true});
+
+                var courseStore = db.createObjectStore(COURSE_DB, {autoIncrement: true});
+                courseStore.createIndex("index", ["term.year", "term.season", "course"], {unique: true});
+                courseStore.createIndex("course", "course", {unique: false});
+                courseStore.createIndex("term", ["term.year", "term.season"], {unique: false});
+
+                var taskStore = db.createObjectStore(TASK_DB, {autoIncrement: true});
+                taskStore.createIndex("index", ["term.year", "term.season", "course", "title"], {unique: true});
+                taskStore.createIndex("course", ["term.year", "term.season", "course"], {unique: false});
+
+                var semesters = [
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        credits: 21.0,
+                        average: 0.6887,
+                        completion: 0.3650
+                    },
+                    {
+                        term: {
+                            year: "19",
+                            season: "S"
+                        },
+                        credits: null,
+                        average: null,
+                        completion: null
+                    }
+                ];
+                var courses = [
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "PROG20261",
+                        credit: 3.0,
+                        profName: "Babanski",
+                        average: null,
+                        completion: null,
+                        achievedGrade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "SCIE16206",
+                        credit: 3.0,
+                        profName: "Someone",
+                        average: 0.8896,
+                        completion: 0.23,
+                        achievedGrade: 0.2046
+                    },
+                    {
+                        term: {
+                            year: "19",
+                            season: "S"
+                        },
+                        course: "Other Course",
+                        credit: 6.0,
+                        profName: "No One",
+                        average: 0.2543,
+                        completion: 0.94,
+                        achievedGrade: 0.9257
+                    }
+                ];
+                var tasks = [
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "PROG20261",
+                        title: "Assignment 1",
+                        weight: 0.10,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "PROG20261",
+                        title: "Assignment 2",
+                        weight: 0.10,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "PROG20261",
+                        title: "Lab 1",
+                        weight: 0.05,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "PROG20261",
+                        title: "Lab 2",
+                        weight: 0.05,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "PROG20261",
+                        title: "Quiz 1",
+                        weight: 0.05,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "PROG20261",
+                        title: "Quiz 2",
+                        weight: 0.05,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "PROG20261",
+                        title: "Quiz 3",
+                        weight: 0.05,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "PROG20261",
+                        title: "Midterm pt. 1",
+                        weight: 0.15,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "PROG20261",
+                        title: "Midterm pt. 2",
+                        weight: 0.15,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "PROG20261",
+                        title: "Final proposal",
+                        weight: 0.05,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "PROG20261",
+                        title: "Project presentation",
+                        weight: 0.10,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "PROG20261",
+                        title: "Project report",
+                        weight: 0.10,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "SCIE16206",
+                        title: "Test 1",
+                        weight: 0.15,
+                        mark: 0.90,
+                        grade: 0.1350
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "SCIE16206",
+                        title: "Test 2",
+                        weight: 0.15,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "SCIE16206",
+                        title: "Exam",
+                        weight: 0.20,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "SCIE16206",
+                        title: "Post 1",
+                        weight: 0.04,
+                        mark: 0.85,
+                        grade: 0.0340
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "SCIE16206",
+                        title: "Post 2",
+                        weight: 0.04,
+                        mark: 0.89,
+                        grade: 0.0356
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "SCIE16206",
+                        title: "Post 3",
+                        weight: 0.04,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "SCIE16206",
+                        title: "Post 4",
+                        weight: 0.04,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "SCIE16206",
+                        title: "Post 5",
+                        weight: 0.4,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "SCIE16206",
+                        title: "Project proposal",
+                        weight: 0.10,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "SCIE16206",
+                        title: "Project report",
+                        weight: 0.15,
+                        mark: null,
+                        grade: null
+                    },
+                    {
+                        term: {
+                            year: "18",
+                            season: "W"
+                        },
+                        course: "SCIE16206",
+                        title: "Project poster",
+                        weight: 0.05,
+                        mark: null,
+                        grade: null
+                    }
+                ];
+                semesters.forEach(function (semester) {
+                    semesterStore.put(semester);
+                });
+                courses.forEach(function (course) {
+                    courseStore.put(course);
+                });
+                tasks.forEach(function (task) {
+                    taskStore.put(task);
+                });
+            };
+            open.onsuccess = function () {
+                // Retrieve database.
+                db = open.result;
+                displaySemesters();
+            }
+            ;
+
+        </script>
+    </body>
+</html>
