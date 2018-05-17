@@ -95,7 +95,7 @@ StudentID: 991466482
             </div>
         </div>
 
-        
+
         <!-- Semester Modal -->
         <div id="semesterModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -148,7 +148,7 @@ StudentID: 991466482
                             </div>
                             <div class="form-group">
                                 <label for="courseCreditInput">CREDIT<span class="h6 text-danger"> Required</span></label>
-                                <input type="number" class="form-control" id="courseCreditInput" min="0" placeholder="Ex. 3.0" step="0.5" required />
+                                <input type="number" class="form-control" id="courseCreditInput" min="0" placeholder="Ex. 3.0" step="0.1" required />
                             </div>
                             <div class="form-group">
                                 <label for="courseProfInput">PROFESSOR</label>
@@ -233,7 +233,7 @@ StudentID: 991466482
                     var $modal = $('#semesterModal');
                     $modal.find("#semesterYearInput").val("20" + year);
                     $modal.find("#semesterSeasonInput").val(season);
-                    
+
                     // Change submit btn text to 'SAVE CHANGES', and store original Term in data values.
                     $modal.find("#semesterBtn").val("SAVE CHANGES").attr({"data-year": year, "data-season": season});
 
@@ -258,7 +258,7 @@ StudentID: 991466482
                     // Validate input.
                     var yearInput = $("#semesterForm").find("#semesterYearInput").val();
                     var seasonInput = $("#semesterForm").find("#semesterSeasonInput").val();
-                    if ( (parseInt(yearInput) >= 2000) && (seasonInput.length > 0) ) {
+                    if ((parseInt(yearInput) >= 2000) && (seasonInput.length > 0)) {
                         // Differentiates b/w creating a new Semester or editing an existing one.
                         var isNew = $modal.find("#semesterBtn").val() === "CREATE";
                         if (isNew) {
@@ -306,7 +306,7 @@ StudentID: 991466482
                             var id = event.target.result;
                             var removeRequest = store.delete(id).onsuccess = function () {
                                 // Does not guarantee object was deleted, only that request was successful.
-                                
+
                                 //TODO: delete all Courses and Tasks associated with this Semester.
                             };
                         };
@@ -323,7 +323,7 @@ StudentID: 991466482
                 $(document).on("click", "#addCourse", function () {
                     // Get Modal from DOM.
                     var $modal = $('#courseModal');
-                    
+
                     // Clear form fields.
                     $modal.find("#courseTitleInput").val("");
                     $modal.find("#courseCreditInput").val("");
@@ -331,10 +331,10 @@ StudentID: 991466482
 
                     // Change submit btn text to 'CREATE'.
                     $modal.find("#courseBtn").val("CREATE");
-                    
+
                     // Hide Delete button.
                     $modal.find("#courseDelete").hide();
-                    
+
                     // Show modal.
                     $modal.modal('show');
                 });
@@ -347,25 +347,25 @@ StudentID: 991466482
                     var profName = $row.eq(2).html();
                     var year = $row.parent().attr("data-year");
                     var season = $row.parent().attr("data-season");
-                    
+
                     // Get Modal from DOM and fill form with selected Course.
                     var $modal = $('#courseModal');
                     $modal.find("#courseTitleInput").val(course);
                     $modal.find("#courseCreditInput").val(credit);
                     $modal.find("#courseProfInput").val(profName);
-                    
+
                     // Change submit btn text to 'SAVE CHANGES', and store original term in data values.
                     $modal.find("#courseBtn").val("SAVE CHANGES").attr({"data-year": year, "data-season": season, "data-course": course});
-                    
+
                     // Show Delete btn.
                     $modal.find("#courseDelete").show();
-                    
+
                     // Show Modal.
                     $modal.modal('show');
                 });
                 // Overwrites default behaviour on number credit-input (prevents '+, -, e' values).
                 document.querySelector("#courseCreditInput").addEventListener("keypress", function (evt) {
-                    if ((this.value.length > 3) || (evt.which !== 8) && (evt.which !== 0) && (evt.which != 46) && (evt.which < 48 || evt.which > 57) ) {
+                    if ((this.value.length > 3) || (evt.which !== 8) && (evt.which !== 0) && (evt.which != 46) && (evt.which < 48 || evt.which > 57)) {
                         // 0 for null values; 8 for backspace; 46 for period; 48-57 for 0-9 numbers.
                         evt.preventDefault();
                     }
@@ -374,28 +374,27 @@ StudentID: 991466482
                 $(document).on("click", "#courseBtn", function () {
                     // Get Modal from DOM.
                     var $modal = $('#courseModal');
-                    
+
                     // Validate input.
                     var title = $modal.find("#courseTitleInput").val().trim();
                     var credit = $modal.find("#courseCreditInput").val().trim();
                     var profName = $modal.find("#courseProfInput").val().trim();
-                    
+
                     if (title.length > 0 && parseFloat(credit) > 0) {
                         // Get Term from submit btn. Term is uniquely identifying which Semester a Course belongs.
                         var year = $modal.find("#courseBtn").attr("data-year");
                         var season = $modal.find("#courseBtn").attr("data-season");
-                        
+
                         // Differentiate b/w creating new Course or editing an existing one.
                         var isNew = $modal.find("#courseBtn").val() === "CREATE";
                         if (isNew) {
                             // New - create new Course.
                             addCourse($modal, year, season, title, credit, profName);
-                        } 
-                        else {
+                        } else {
                             // Not new - edit existing Course.
                             editCourse($modal, year, season, title, credit, profName);
                         }
-                        
+
                         // Dismiss Modal.
                         $modal.modal('hide');
                     }
@@ -979,8 +978,7 @@ StudentID: 991466482
                     if (cursor) {
                         // Duplicate found.                        
                         alert("Semester (" + year + "" + season + ") already exists!");
-                    } 
-                    else {
+                    } else {
                         // Unique.
 
                         // Semester object.
@@ -1006,7 +1004,7 @@ StudentID: 991466482
             function addCourse($modal, year, season, title, credit, profName) {
                 // Retrieve Course DB.
                 var store = db.transaction(COURSE_DB, "readwrite").objectStore(COURSE_DB);
-                
+
                 // Search for duplicate Course in DB to prevent overwriting data.
                 var index = store.index("index");
                 var key = IDBKeyRange.only([year, season, title]);
@@ -1014,9 +1012,8 @@ StudentID: 991466482
                     var cursor = event.target.result;
                     if (cursor) {
                         // Duplicate found.
-                        alert("Course ("+ title +") in Semester ("+ year +""+ season +") already exists!");
-                    }
-                    else {
+                        alert("Course (" + title + ") in Semester (" + year + "" + season + ") already exists!");
+                    } else {
                         // Unique - continue creating Course.
                         var course = {
                             term: {
@@ -1030,7 +1027,7 @@ StudentID: 991466482
                             completion: null,
                             achievedGrade: null
                         };
-                        
+
                         // Request to add Course to DB.
                         store.add(course).onsuccess = function () {
                             // Request successful - refresh table & dismiss Modal.
@@ -1084,6 +1081,118 @@ StudentID: 991466482
                         };
                     }
                 };
+            }
+            function editCourse($modal, year, season, title, credit, profName) {
+                // Retrieve Course DB for writing.
+                var store = db.transaction(COURSE_DB, "readwrite").objectStore(COURSE_DB);
+
+                // Compare old and new Course Titles.
+                // Title is part of PK thus changing it risks overwriting another Course.
+                var oldTitle = $modal.find("#courseBtn").attr("data-course");
+                if (oldTitle === title) {
+                    // Title is unchanged - no need to search for duplicates in DB.
+                    // Matching criteria for finding original course.
+                    var key = IDBKeyRange.only([year, season, title]);
+                    var index = store.index("index");
+                    var request = index.openCursor(key).onsuccess = function (event) {
+                        var cursor = event.target.result;
+                        if (cursor) {
+                            // Update Course object.
+                            var course = cursor.value;
+                            course.credit = credit;
+                            course.profName = profName;
+
+                            // Request to Update Course in DB.
+                            var updateRequest = cursor.update(course);
+                            updateRequest.onerror = function (event) {
+                                console.log("Error: " + event.target.errorCode);
+                            };
+
+                            // Reprint table.
+                            displayCourses(year, season);
+
+                            // Dismiss Modal.
+                            $modal.modal('hide');
+                        }
+                    }
+                } else {
+                    // Title has changed - search DB for no duplicates to ensure no data loss.
+                    var key = IDBKeyRange.only([year, season, title]);
+                    var index = store.index("index");
+                    var duplicatedRequest = index.openCursor(key).onsuccess = function (event) {
+                        var cursor = event.target.result;
+                        if (cursor) {
+                            // Duplicate Course found - prevent editing to avoid data loss.
+                            alert("Course (" + title + ") already exists in Semester (" + year + "" + season + ")");
+                        } else {
+                            // Course is unique - proceed with applying changes to DB.
+                            // Matching criteria for finding original course.
+                            var key = IDBKeyRange.only([year, season, oldTitle]);
+                            var index = store.index("index");
+                            var request = index.openCursor(key).onsuccess = function (event) {
+                                var cursor = event.target.result;
+                                if (cursor) {
+                                    // Update Course object.
+                                    var course = cursor.value;
+                                    course.course = title;
+                                    course.credit = credit;
+                                    course.profName = profName;
+
+                                    // Request to Update Course in DB.
+                                    var updateRequest = cursor.update(course);
+                                    updateRequest.onerror = function (event) {
+                                        console.log("Error: " + event.target.errorCode);
+                                    };
+
+                                    // Reprint table.
+                                    displayCourses(year, season);
+
+                                    // Dismiss Modal.
+                                    $modal.modal('hide');
+                                }
+                            };
+                        }
+                    };
+                }
+
+                // Matching criteria for finding duplicated Courses.
+                /*var key = IDBKeyRange.only([year, season, title]);
+                 var index = store.index("index");
+                 var duplicatedRequest = index.openCursor(key).onsuccess = function (event) {
+                 var cursor = event.target.result;
+                 console.log("Cursor:"); console.dir(cursor);
+                 if (cursor) {
+                 // Unique - retrieve original Course in DB to edit.
+                 console.log("Year: "+ year +"\nSeason: "+ season +"\nOldTitle: "+ oldTitle);
+                 key = IDBKeyRange.only([year, season, oldTitle]);
+                 var getCourseRequest = index.openCursor(key).onsuccess = function (event) {
+                 cursor = event.target.result;
+                 if (cursor) {
+                 // Original Course found.
+                 var course = cursor.result;
+                 console.log("Course: "); console.dir(course);
+                 course.course = title;
+                 course.credit = credit;
+                 course.profName = profName;
+                 
+                 // Request to Update Course in DB.
+                 var updateRequest = cursor.update(course);
+                 updateRequest.onerror = function (event) {
+                 console.log("Error: " + event.target.errorCode);
+                 };
+                 
+                 // Reprint table.
+                 displayCourses(year, season);
+                 
+                 // Dismiss Modal.
+                 $modal.modal('hide');
+                 } else {
+                 // Original Course not found - error?
+                 console.log("Original Course NOT FOUND... Oops");
+                 }
+                 };
+                 }
+                 };*/
             }
 
             // This works on all devices/browsers, and uses IndexedDBShim as a final fallback.
