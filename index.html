@@ -258,7 +258,7 @@ StudentID: 991466482
                     // Validate input.
                     var yearInput = $("#semesterForm").find("#semesterYearInput").val();
                     var seasonInput = $("#semesterForm").find("#semesterSeasonInput").val();
-                    if (parseInt(yearInput) >= 2000 && seasonInput.length > 0) {
+                    if ( (parseInt(yearInput) >= 2000) && (seasonInput.length > 0) ) {
                         // Differentiates b/w creating a new Semester or editing an existing one.
                         var isNew = $modal.find("#semesterBtn").val() === "CREATE";
                         if (isNew) {
@@ -275,6 +275,9 @@ StudentID: 991466482
                     // Get Term from selected table row.
                     var year = $(this).attr("data-year");
                     var season = $(this).attr("data-season");
+
+                    // Set Term values in data of Course Modal submit btn.
+                    $("#courseBtn").attr({"data-year": year, "data-season": season});
 
                     // Show Course section.
                     $("#courseSection").show();
@@ -362,9 +365,8 @@ StudentID: 991466482
                 });
                 // Overwrites default behaviour on number credit-input (prevents '+, -, e' values).
                 document.querySelector("#courseCreditInput").addEventListener("keypress", function (evt) {
-                    console.dir(evt.which);
                     if ((this.value.length > 3) || (evt.which !== 8) && (evt.which !== 0) && (evt.which != 46) && (evt.which < 48 || evt.which > 57) ) {
-                        // 0 for null values; 8 for backspace; 48-57 for 0-9 numbers.
+                        // 0 for null values; 8 for backspace; 46 for period; 48-57 for 0-9 numbers.
                         evt.preventDefault();
                     }
                 });
@@ -374,57 +376,29 @@ StudentID: 991466482
                     var $modal = $('#courseModal');
                     
                     // Validate input.
-                    var title = $modal.find("#courseTitleInput").value.trim();
-                    var credit = $modal.find("#courseCreditInput").value.trim();
-                    var profName = $modal.find("#courseProfInput").value.trim();
+                    var title = $modal.find("#courseTitleInput").val().trim();
+                    var credit = $modal.find("#courseCreditInput").val().trim();
+                    var profName = $modal.find("#courseProfInput").val().trim();
                     
                     if (title.length > 0 && parseFloat(credit) > 0) {
+                        // Get Term from submit btn. Term is uniquely identifying which Semester a Course belongs.
+                        var year = $modal.find("#courseBtn").attr("data-year");
+                        var season = $modal.find("#courseBtn").attr("data-season");
+                        
                         // Differentiate b/w creating new Course or editing an existing one.
                         var isNew = $modal.find("#courseBtn").val() === "CREATE";
                         if (isNew) {
                             // New - create new Course.
-                            addCourse($modal, title, credit, profName);
+                            addCourse($modal, year, season, title, credit, profName);
                         } 
                         else {
                             // Not new - edit existing Course.
-                            editCourse($modal, title, credit, profName);
+                            editCourse($modal, year, season, title, credit, profName);
                         }
                         
                         // Dismiss Modal.
                         $modal.modal('hide');
                     }
-                    
-                    
-                    
-                    
-                    
-
-                    // Validate non-empty required input.
-                    /*if ((title.length > 0) && (credit.length > 0)) {
-                        // Neglect empty ProfName.
-                        if (profName.length > 0) {
-                            if (isNew === true) {
-                                // Create new Course.
-                                //addCourse(title, parseFloat(credit), profName);
-                                console.log("CREATE COURSE (w Prof)");
-                            } else {
-                                //sem.editCourse(title, parseFloat(credit), profName);
-                                console.log("EDIT COURSE (w Prof)");
-                            }
-                        } else {
-                            if (isNew === true) {
-                                // Create new Course.                
-                                //addCourse(title, parseFloat(credit));
-                                console.log("CREATE COURSE (w/o Prof)");
-                            } else {
-                                //sem.editCourse(title, parseFloat(credit));
-                                console.log("EDIT COURSE (w/o Prof)");
-                            }
-                        }
-
-                        // Dismiss Modal.
-                        $modal.modal('hide');
-                    }*/
                 });
 
                 // Handles viewing Course's Tasks.
@@ -527,8 +501,6 @@ StudentID: 991466482
                         $("#courseModal").modal('hide');
                     }
                 });
-
-
             });
 
             /* SEMESTER CONSTRUCTOR */
@@ -1007,10 +979,11 @@ StudentID: 991466482
                     if (cursor) {
                         // Duplicate found.                        
                         alert("Semester (" + year + "" + season + ") already exists!");
-                    } else {
+                    } 
+                    else {
                         // Unique.
 
-                        // Temporary Semester object.
+                        // Semester object.
                         var semester = {
                             term: {
                                 year: year,
@@ -1030,13 +1003,42 @@ StudentID: 991466482
                     }
                 };
             }
-            function addCourse($modal, title, credit, profName) {
+            function addCourse($modal, year, season, title, credit, profName) {
                 // Retrieve Course DB.
                 var store = db.transaction(COURSE_DB, "readwrite").objectStore(COURSE_DB);
                 
                 // Search for duplicate Course in DB to prevent overwriting data.
-                var index;
-                //TODO: finish
+                var index = store.index("index");
+                var key = IDBKeyRange.only([year, season, title]);
+                var duplicateRequest = index.openCursor(key).onsuccess = function (event) {
+                    var cursor = event.target.result;
+                    if (cursor) {
+                        // Duplicate found.
+                        alert("Course ("+ title +") in Semester ("+ year +""+ season +") already exists!");
+                    }
+                    else {
+                        // Unique - continue creating Course.
+                        var course = {
+                            term: {
+                                year: year,
+                                season: season
+                            },
+                            course: title,
+                            credit: parseFloat(credit),
+                            profName: profName,
+                            average: null,
+                            completion: null,
+                            achievedGrade: null
+                        };
+                        
+                        // Request to add Course to DB.
+                        store.add(course).onsuccess = function () {
+                            // Request successful - refresh table & dismiss Modal.
+                            displayCourses(year, season);
+                            $modal.modal("hide");
+                        };
+                    }
+                };
             }
             // Editing functions.
             function editSemester($modal, year, season) {
@@ -1081,30 +1083,6 @@ StudentID: 991466482
                             }
                         };
                     }
-
-
-
-
-                    /*var openCursorRequest = index.openCursor(key).onsuccess = function (event) {
-                     //TODO: prevent overwriting other semesters by differentiating b/w the original
-                     // term of this Semester and matching Terms of other Semesters.
-                     
-                     var cursor = event.target.result;
-                     if (cursor) {
-                     var semester = cursor.value;
-                     
-                     semester.term.year = ($("#semesterForm").find("#semesterYearInput").val()).slice(-2);
-                     semester.term.season = $("#semesterForm").find("#semesterSeasonInput").val();
-                     
-                     var updateRequest = cursor.update(semester);
-                     updateRequest.onerror = function (event) {
-                     console.log("Error: " + event.target.errorCode);
-                     };
-                     
-                     // Reprint Semesters.
-                     displaySemesters();
-                     }
-                     };*/
                 };
             }
 
