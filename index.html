@@ -399,6 +399,22 @@ StudentID: 991466482
                         $modal.modal('hide');
                     }
                 });
+                // Handles Course expanding.
+                $(document).on("click", ".courseRow", function () {
+                    // Get Term & Course from selected table row.
+                    var year = $(this).attr("data-year");
+                    var season = $(this).attr("data-season");
+                    var course = $(this).attr("data-course");
+
+                    // Set Term & Course values in data of Task Modal submit btn.
+                    $("#taskBtn").attr({"data-year": year, "data-season": season, "data-course": course});
+
+                    // Show Task section.
+                    $("#taskSection").show();
+
+                    // Display all Tasks belonging to Course with matching Term.
+                    displayTasks(year, season, course);
+                });
 
                 // Handles viewing Course's Tasks.
                 $(document).on("click", ".courseRow", function () {
@@ -502,344 +518,11 @@ StudentID: 991466482
                 });
             });
 
-            /* SEMESTER CONSTRUCTOR */
-            function Semester(term) {
-                // Methods
-                this.findCourse = function (title) {
-                    /**
-                     * Search the list of Courses and return one with a matching title, or null if not found.
-                     */
-                    var myArray = this.courses;
-                    for (var i = 0; i < myArray.length; i++) {
-                        if (myArray[i].title === title) {
-                            var course = myArray[i];
-                            //myArray.splice(i, 1);     // Delete Course from list.
-                            return course;
-                        }
-                    }
-                    return null;
-                };
-                this.addCourse = function (title, credit, profName) {
-                    /**
-                     * Create new Course and append it to the list of Courses.
-                     */
-                    var newCourse = new Course(title, credit, profName);
-                    // Append new Course to list of Courses.
-                    this.courses.push(newCourse);
-
-                    // Update table.
-                    //$table = $("#courseDisplay");
-                    //$table.append(newCourse.displayCourse());
-                    displayCourses();
-                };
-                this.editCourse = function (title, credit, profName = null) {
-                    /**
-                     * Overwrite Course attributes.
-                     */
-                    selectedCourse.title = title;
-                    selectedCourse.credit = credit;
-                    selectedCourse.profName = (profName === null) ? "----" : profName;
-                    displayCourses();
-
-                };
-                this.deleteCourse = function () {
-                    /**
-                     * Removes selected-Course from Course list.
-                     * If Course list is empty thereafter set selected-Course to null.
-                     * Else, set to first Course in Course list.
-                     */
-                    var myArray = this.courses;
-                    for (var i = 0; i < myArray.length; i++) {
-                        if (myArray[i].title === selectedCourse.title) {
-                            myArray.splice(i, 1);
-                        }
-                    }
-                    selectedCourse = (myArray.length > 0) ? (myArray[0]) : null;
-                    displayCourses();
-                    displayTasks();
-                };
-                this.computeCredits = function () {
-                    /**
-                     * Sets Semester Credits as the sum of its Course Credits.
-                     */
-                    var credits = 0.0;
-                    this.courses.forEach(function (course) {
-                        // If Credit is empty, skip.
-                        if (typeof course.credit === 'string')
-                            return;
-                        // Otherwise, sum Credits.
-                        credits += course.credit;
-                    });
-                    this.credits = credits;
-                };
-                this.computeAverage = function () {
-                    /**
-                     * Sets Semester Average as the average of its Course Averages.
-                     */
-                    var avg = 0.0, num = 0;
-                    this.courses.forEach(function (course) {
-                        // If Average is empty, skip.
-                        if (typeof course.average === 'string')
-                            return;
-                        // Otherwise, sum Average.
-                        avg += course.average;
-                        num++;
-                    });
-                    this.average = (num > 0) ? (avg / num) : "----";
-                };
-                this.computeCompletion = function () {
-                    /**
-                     * Sets Semester Completion as the sum of its Course Completions.
-                     */
-                    var completion = 0.0;
-                    this.courses.forEach(function (course) {
-                        // If Completion is empty, skip.
-                        if (typeof course.completion === 'string')
-                            return;
-                        // Otherwise, sum Completion.
-                        completion += course.completion;
-                    });
-                    this.completion = (completion > 0) ? parseFloat(Number(1 - completion).toFixed(4)) : "----";
-                };
-                this.refresh = function () {
-                    /**
-                     * Recomputes all values in the Semester.
-                     */
-                    this.courses.forEach(function (course) {
-                        course.refreshCourse();
-                    });
-
-                    // These values depend on child Courses.
-                    this.computeCredits();
-                    this.computeAverage();
-                    this.computeCompletion();
-                };
-
-                // Field variables
-                this.courses = [];
-                this.term = term;
-                this.credits = "----";
-                this.average = "----";
-                this.completion = "----";
-            }
-            /* COURSE CONSTRUCTOR */
-            function Course(title, credit, profName) {
-                // Methods
-                this.addTask = function (title, weight, mark = null) {
-                    mark = (mark === null) ? "----" : parseFloat(mark);
-                    var newTask = new Task(title, parseFloat(weight), mark);
-                    selectedTask = newTask;
-                    this.tasks.push(newTask);
-                    selectedTask.refreshTask();
-                    this.refreshCourse();
-                    displayCourses();
-                    displayTasks();
-                };
-                this.editTask = function (title, weight, mark = null) {
-                    console.log("Title: " + title + "\nWeight: " + weight + "\nMark: " + mark);
-                    selectedTask.title = title;
-                    selectedTask.weight = parseFloat(weight);
-                    selectedTask.mark = (mark === null) ? "----" : parseFloat(mark);
-                    console.dir(selectedTask);
-                    selectedTask.refreshTask();
-                    selectedTask.refreshTask();
-                    this.refreshCourse();
-                    displayCourses();
-                    displayTasks();
-                };
-                this.computeAverage = function () {
-                    var avg = 0.0, num = 0;
-                    this.tasks.forEach(function (task) {
-                        // If Mark is empty, skip.
-                        if (typeof task.mark === 'string')
-                            return;
-                        // Otherwise, sum mark.
-                        avg += task.mark;
-                        num++;
-                    });
-                    avg /= num;
-                    this.average = (num > 0) ? parseFloat(Number(avg).toFixed(4)) : "----";
-                };
-                this.computeCompletion = function () {
-                    var complete = 0.0;
-                    this.tasks.forEach(function (task) {
-                        // If Mark is empty, skip.
-                        if (typeof task.mark === 'string')
-                            return;
-                        // Otherwise, sum Weight.
-                        complete += task.weight;
-                    });
-                    this.completion = (complete > 0) ? parseFloat(Number(1 - complete).toFixed(4)) : "----";
-                };
-                this.computeAchievedGrade = function () {
-                    var grade = 0.0;
-                    this.tasks.forEach(function (task) {
-                        // If Mark is empty, skip.
-                        console.dir(task);
-                        if (typeof task.mark === 'string')
-                            return;
-                        // Otherwise, sum Grade.
-                        grade += task.grade;
-                    });
-                    this.achievedGrade = (typeof this.completion === 'string') ? "----" : parseFloat(Number(grade).toFixed(4));
-                };
-                this.refreshCourse = function () {
-                    // Recomputes all Course values.
-                    this.computeAverage();
-                    this.computeCompletion();
-                    this.computeAchievedGrade();
-                };
-                this.printTasks = function () {
-                    var str = "";
-                    this.tasks.forEach(function (task) {
-                        str += "\n\tTask Title: " + task.title
-                                + "\n\t\tWeight: " + task.weight
-                                + "\n\t\tMark: " + task.mark
-                                + "\n\t\tGrade: " + task.grade;
-                    });
-                    return str;
-                };
-                this.displayCourse = function () {
-                    // Returns table-ready summary of Course.
-                    return "<tr class='courseRow'><td>" + this.title + "</td>"
-                            + "<td>" + Number(this.credit).toFixed(2) + "</td>"
-                            + "<td>" + this.profName + "</td>"
-                            + "<td>" + convertValue(this.average) + "</td>"
-                            + "<td>" + convertValue(this.completion) + "</td>"
-                            + "<td>" + convertValue(this.achievedGrade) + "</td>"
-                            + "<td><input class='btn btn-default btn-sm editCourseBtn' value='EDIT'/></td></tr>";
-                };
-                this.findTask = function (title) {
-                    var myArray = this.tasks;
-                    for (var i = 0; i < myArray.length; i++) {
-                        if (myArray[i].title === title) {
-                            var task = myArray[i];
-                            //myArray.splice(i, 1);     // Delete Course from list.
-                            return task;
-                        }
-                    }
-                    return null;
-                };
-                Course.prototype.toString = function () {
-                    return "Title: " + this.title
-                            + "\nCredit: " + this.credit
-                            + "\nProfName: " + this.profName
-                            + "\nAverage: " + this.average
-                            + "\nCompletion: " + this.completion
-                            + "\nAchievedGrade: " + this.achievedGrade
-                            + "" + this.printTasks();
-                };
-
-                // Field variables
-                this.title = title;
-                this.credit = credit;
-                this.profName = profName;
-                this.tasks = [];
-                this.average = "----";
-                this.completion = "----";
-                this.achievedGrade = "----";
-            }
-            /* TASK CONSTRUCTOR */
-            function Task(title, weight, mark) {
-                // Methods
-                Task.prototype.toString = function () {
-                    return "Title: " + this.title + " \nWeight: " + Number(this.weight * 100).toFixed(2) + "% \nMark: " + Number(this.mark * 100).toFixed(2) + " \nGrade: " + Number(this.grade * 100).toFixed(3) + "%";
-                };
-                this.computeGrade = function () {
-                    // If Mark is empty, return empty.
-                    if (typeof this.mark === 'string')
-                        return "----";
-                    // Otherwise, compute Grade.
-                    this.grade = parseFloat(Number(this.weight * this.mark).toFixed(4));
-                };
-                this.refreshTask = function () {
-                    // Recompute all Task values.
-                    this.computeGrade();
-                };
-                this.displayTask = function () {
-                    // Returns table-ready summary of Task.
-                    return "<tr class='taskRow'><td>" + this.title + "</td>"
-                            + "<td>" + convertValue(this.weight) + "</td>"
-                            + "<td>" + convertValue(this.mark) + "</td>"
-                            + "<td>" + convertValue(this.grade) + "</td>"
-                            + "<td><input class='btn btn-default btn-sm editTaskBtn' value='EDIT'/></td></tr>";
-                };
-                // Field variables
-                this.title = title;
-                this.weight = weight;
-                this.mark = mark;
-                this.grade = "----";
-            }
-
-
-            function displayCourses() {
-                var $table = $("#courseDisplay");
-                var data = "";
-
-                // Clear table.
-                $table.html(" ");
-
-                // Rewrite table.
-                sem.courses.forEach(function (course) {
-                    data += course.displayCourse();
-                });
-                $table.append(data);
-            }
-            function displayTasks() {
-                var $table = $("#taskDisplay");
-                var data = "";
-
-                // Clear table.
-                $table.html(" ");
-
-                // Rewrite header.	
-                console.dir(!selectedCourse);
-                var title = (!selectedCourse) ? " " : selectedCourse.title;
-                $("#taskParent").html(title);
-
-                // If no Course exists, hide Task table.
-                if (selectedCourse) {
-                    // Rewrite table.
-                    selectedCourse.tasks.forEach(function (task) {
-                        if (task !== null) {
-                            data += task.displayTask();
-                        }
-                    });
-                    $table.append(data);
-                } else {
-                    $("#addTask").prop('disabled', true);
-                }
-            }
+            // Helper functions.
             function convertValue(value) {
-                // Returns formatted percentage string or empty.
+                // Returns formatted percentage string ('0.05' -> '5.00%') or empty ('---').
                 return (typeof value === 'string') ? "----" : Number(value * 100).toFixed(2) + "%";
             }
-            function testingData() {
-                // Create new Semester.
-                sem = new Semester("18S");
-
-                // Create new Courses.
-                sem.addCourse("PROG 23672", 6.00, "Shane Saunders");
-                sem.addCourse("SCIE 15602", 3.00, "Ed Sykes");
-                sem.addCourse("MATH 17028", 3.00, "----");
-
-                // Select first Course.
-                selectedCourse = sem.courses[0];
-
-                // Create new Tasks for selected Course.
-                selectedCourse.addTask("Assignment #1", 0.075, 1.00);
-                selectedCourse.addTask("Assignment #2", 0.075, 0.97);
-                selectedCourse.addTask("Assignment #3", 0.075);
-                selectedCourse.addTask("Assignment #4", 0.075);
-                selectedCourse.addTask("Quiz #1", 0.02, 0.65);
-                selectedCourse.addTask("Quiz #2", 0.02, 0.85);
-                selectedCourse.addTask("Quiz #3", 0.02, 0.90);
-                selectedCourse.addTask("Quiz #4", 0.02);
-                selectedCourse.addTask("Quiz #5", 0.02);
-                selectedCourse.addTask("Midterm", 0.2502, 0.78);
-                selectedCourse.addTask("Exam", 0.3498);
-            }
-
 
             // Displaying functions.
             function displaySemesters() {
@@ -907,7 +590,8 @@ StudentID: 991466482
                         var obj = cursor.value;
 
                         // Concatenate new row into preparing data.
-                        data += "<tr class='courseRow' data-year='" + obj.term.year + "' data-season='" + obj.term.season + "'><td>" + obj.course + "</td>"
+                        data += "<tr class='courseRow' data-year='"+ obj.term.year +"' data-season='"+ obj.term.season +"' data-course='"+ obj.course +"'>"
+                                + "<td>" + obj.course + "</td>"
                                 + "<td>" + (obj.credits === null ? '---' : Number(obj.credit).toFixed(2)) + "</td>"
                                 + "<td>" + (obj.profName === null ? '---' : obj.profName) + "</td>"
                                 + "<td>" + (obj.average === null ? '---' : convertValue(obj.average)) + "</td>"
@@ -925,8 +609,8 @@ StudentID: 991466482
             }
             function displayTasks(year, season, course) {
                 /**
-                 * Retrieves all Course objects from IndexedDB with matching Term,
-                 * and displays them in the CourseTable.
+                 * Retrieves all Task objects from IndexedDB with matching Term & Course,
+                 * and displays them in the TaskTable.
                  */
                 var store = db.transaction(TASK_DB).objectStore(TASK_DB);
 
@@ -941,7 +625,7 @@ StudentID: 991466482
                 var singleKeyRange = IDBKeyRange.only([year, season, course]);
 
                 // Get Cursor from DB containing all relevant objects.
-                var index = store.index("index");
+                var index = store.index("course");
                 index.openCursor(singleKeyRange).onsuccess = function (event) {
                     var cursor = event.target.result;
                     if (cursor) {
@@ -949,7 +633,8 @@ StudentID: 991466482
                         var obj = cursor.value;
 
                         // Concatenate new row into preparing data.
-                        data += "<tr class='taskRow' data-year='" + obj.term.year + "' data-season='" + obj.term.season + "' data-course='" + obj.course + "'><td>" + obj.title + "</td>"
+                        data += "<tr class='taskRow' data-year='" + obj.term.year + "' data-season='" + obj.term.season + "' data-course='" + obj.course + "' data-task='" + obj.title + "'>"
+                                + "<td>" + obj.title + "</td>"
                                 + "<td>" + (obj.weight === null ? '---' : convertValue(obj.weight)) + "</td>"
                                 + "<td>" + (obj.mark === null ? '---' : convertValue(obj.mark)) + "</td>"
                                 + "<td>" + (obj.grade === null ? '---' : convertValue(obj.grade)) + "</td>"
@@ -1037,6 +722,7 @@ StudentID: 991466482
                     }
                 };
             }
+            
             // Editing functions.
             function editSemester($modal, year, season) {
                 // Retrieve Semester DB.
